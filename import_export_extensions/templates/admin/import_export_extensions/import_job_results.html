@@ -1,5 +1,4 @@
-{% load i18n  %}
-{% load static %}
+{% load i18n static %}
 
 {% comment %}
 
@@ -13,10 +12,10 @@ If no errors - shows imported data.
 <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
 <script type="text/javascript" src="{% static 'import_export_extensions/js/admin/admin.js' %}"></script>
 
-{% if result.has_errors or result.has_validation_errors  %}
+{% if result.has_errors or result.has_validation_errors %}
   <b style="color: red">Importing data contains errors</b>
   <br>
-  {% for error in result.base_errors  %}
+  {% for error in result.base_errors %}
     <li>
       {{ error.error }}
       {% if debug %}
@@ -38,7 +37,7 @@ If no errors - shows imported data.
     {% endfor %}
   {% endfor %}
   {% for invalid_row in result.invalid_rows %}
-    <b>{% trans "Row number" %}: {{ invalid_row.number }}</b>
+    <b>{% translate "Row number" %}: {{ invalid_row.number }}</b>
     {% for field, errors in invalid_row.error_dict.items %}
       <br>
       <b>&ensp;{{ field }}: </b>

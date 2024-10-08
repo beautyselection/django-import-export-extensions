@@ -1,6 +1,5 @@
 {% extends "admin/import_export/base.html" %}
-{% load i18n %}
-{% load static admin_urls %}
+{% load admin_urls i18n static %}
 
 {% comment %}
   Template to show status of export job.
@@ -12,7 +11,7 @@
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static "import_export_extensions/css/admin/admin.css" %}"/>
   <link rel="stylesheet" type="text/css" href="{% static "import_export_extensions/css/widgets/progress_bar.css" %}"/>
-{% endblock %}
+{% endblock extrastyle %}
 
 {% block extrahead %}
   {{ block.super }}
@@ -20,16 +19,15 @@
   <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
   <script type="text/javascript" src="{% static 'import_export_extensions/js/admin/admin.js' %}"></script>
   <script type="text/javascript" src="{% static 'import_export_extensions/js/widgets/progress_bar.js' %}"></script>
-{% endblock %}
-
+{% endblock extrahead %}
 
 {% block breadcrumbs_last %}
-  <a href="{% url opts|admin_urlname:'export' %}?{{request.GET.urlencode}}">
-    {% trans "Export" %}
+  <a href="{% url opts|admin_urlname:'export' %}?{{ request.GET.urlencode }}">
+    {% translate "Export" %}
   </a>
   &rsaquo;
-  {% trans "Exporting ..." %}
-{% endblock %}
+  {% translate "Exporting ..." %}
+{% endblock breadcrumbs_last %}
 
 {% block content %}
   <div>
@@ -65,9 +63,9 @@
         </div>
         <div class="form-row">
           <label>Traceback</label>
-          {{ export_job.traceback | linebreaks }}
+          {{ export_job.traceback|linebreaks }}
         </div>
       {% endif %}
     </fieldset>
   </div>
-{% endblock %}
+{% endblock content %}

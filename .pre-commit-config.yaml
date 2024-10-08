@@ -17,6 +17,11 @@ repos:
     rev: v0.13.0
     hooks:
       - id: yamlfmt
+  - repo: https://github.com/adamchainz/djade-pre-commit
+    rev: 1.2.0
+    hooks:
+      - id: djade
+        args: [--target-version, "5.1"] # Replace with Django version
   - repo: https://github.com/asottile/add-trailing-comma
     rev: v2.4.0
     hooks:

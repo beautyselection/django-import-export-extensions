@@ -1,6 +1,5 @@
 {% extends "admin/import_export/base.html" %}
-{% load i18n %}
-{% load static admin_urls %}
+{% load admin_urls i18n static %}
 
 {% comment %}
   Template for showing import results.
@@ -15,16 +14,15 @@
   <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
   <script type="text/javascript" src="{% static 'import_export_extensions/js/admin/admin.js' %}"></script>
   <link rel="stylesheet" type="text/css" href="{% static "import_export_extensions/css/admin/import_result_diff.css" %}"/>
-  <link rel="stylesheet" type="text/css" href="{% static "import_export/import.css"" %}"/>
-{% endblock %}
-
+  <link rel="stylesheet" type="text/css" href="{% static "import_export/import.css" " %}"/>
+{% endblock extrahead %}
 
 {% block breadcrumbs_last %}
-  <a href="{% url opts|admin_urlname:'import' %}?{{request.GET.urlencode}}">
-    {% trans "Import" %}
+  <a href="{% url opts|admin_urlname:'import' %}?{{ request.GET.urlencode }}">
+    {% translate "Import" %}
   </a>
-  &rsaquo; {% trans "Import results" %}
-{% endblock %}
+  &rsaquo; {% translate "Import results" %}
+{% endblock breadcrumbs_last %}
 
 {% block content %}
 
@@ -35,13 +33,13 @@
         {% csrf_token %}
         {{ confirm_form.as_p }}
         <p>
-          {% trans "Below is a preview of data to be imported. If you are satisfied with the results, click 'Confirm import'" %}
+          {% translate "Below is a preview of data to be imported. If you are satisfied with the results, click 'Confirm import'" %}
         </p>
         <div class="submit-row">
-          <input type="submit" class="default" name="confirm" value="{% trans "Confirm import" %}">
+          <input type="submit" class="default" name="confirm" value="{% translate "Confirm import" %}">
         </div>
       </form>
-    {% endblock %}
+    {% endblock confirm_form %}
   {% endif %}
 
   {# Show Import form if result contain errors #}
@@ -67,7 +65,7 @@
       </fieldset>
 
       <div class="submit-row">
-        <input type="submit" class="default" value="{% trans "Submit" %}">
+        <input type="submit" class="default" value="{% translate "Submit" %}">
       </div>
     </form>
 
@@ -76,9 +74,9 @@
 
   {% block import_results %}
     {% if result.has_errors or result.has_validation_errors %}
-      <h2>{% trans "Errors" %}</h2>
+      <h2>{% translate "Errors" %}</h2>
       <ul>
-        {% for error in result.base_errors  %}
+        {% for error in result.base_errors %}
           <li>
             {{ error.error }}
             {% if debug %}
@@ -89,7 +87,7 @@
         {% for line, errors in result.row_errors %}
           {% for error in errors %}
             <li>
-              <b>{% trans "Row number" %}: {{ line }}</b> - {{ error.error }}
+              <b>{% translate "Row number" %}: {{ line }}</b> - {{ error.error }}
               <br>
               <a href="#" class="show-error-detail">Show row data {% if debug %}and debug info{% endif %}</a>
               <div style="display: none;"><code>{{ error.row.values|join:", " }}</code></div>
@@ -100,14 +98,14 @@
           {% endfor %}
         {% endfor %}
         {% for invalid_row in result.invalid_rows %}
-          <h2>{% trans "Some rows failed to validate" %}</h2>
+          <h2>{% translate "Some rows failed to validate" %}</h2>
 
-          <p>{% trans "Please correct these errors in your data where possible, then reupload it using the form above." %}</p>
+          <p>{% translate "Please correct these errors in your data where possible, then reupload it using the form above." %}</p>
           <table class="import-preview">
             <thead>
               <tr>
-                <th>{% trans "Row" %}</th>
-                <th>{% trans "Errors" %}</th>
+                <th>{% translate "Row" %}</th>
+                <th>{% translate "Errors" %}</th>
                 {% for field in result.diff_headers %}
                   <th>{{ field }}</th>
                 {% endfor %}
@@ -133,7 +131,7 @@
                         {% endfor %}
                         {% if row.non_field_specific_errors %}
                           <li>
-                            <span class="validation-error-field-label">{% trans "Non field specific" %}</span>
+                            <span class="validation-error-field-label">{% translate "Non field specific" %}</span>
                             <ul>
                               {% for error in row.non_field_specific_errors %}
                                 <li>{{ error }}</li>
@@ -157,9 +155,9 @@
     {% if import_job.import_status in import_job.success_statuses %}
       <h2>
         {% if import_job.import_status == "PARSED" %}
-          {% trans "These elements will be imported successfully" %}
-        {% elif import_job.import_status == "IMPORTED"%}
-          {% trans "These elements are imported successfully" %}
+          {% translate "These elements will be imported successfully" %}
+        {% elif import_job.import_status == "IMPORTED" %}
+          {% translate "These elements are imported successfully" %}
         {% endif %}
       </h2>
       <table class="import-preview">
@@ -176,10 +174,10 @@
             <tr>
               <td class="errors">
                 {% if row.import_type == 'new' %}
-                  {% trans "New" %}
+                  {% translate "New" %}
                 {% elif row.import_type == 'skip' %}
-                  {% trans "Skipped" %}
-                  <span class="validation-error-count">{{ row.skipped_errors_count}}</span>
+                  {% translate "Skipped" %}
+                  <span class="validation-error-count">{{ row.skipped_errors_count }}</span>
                   <div class="validation-error-container">
                     <ul class="validation-error-list">
                       {% for field_name, errors in row.field_skipped_errors.items %}
@@ -196,7 +194,7 @@
                       {% endfor %}
                       {% if row.non_field_skipped_errors %}
                         <li>
-                          <span class="validation-error-field-label">{% trans "Non field specific" %}</span>
+                          <span class="validation-error-field-label">{% translate "Non field specific" %}</span>
                           <ul>
                             {% for error in row.non_field_skipped_errors %}
                               <li>{{ error }}</li>
@@ -207,9 +205,9 @@
                     </ul>
                   </div>
                 {% elif row.import_type == 'delete' %}
-                  {% trans "Delete" %}
+                  {% translate "Delete" %}
                 {% elif row.import_type == 'update' %}
-                  {% trans "Update" %}
+                  {% translate "Update" %}
                 {% endif %}
               </td>
               {% for field in row.diff %}
@@ -222,7 +220,7 @@
         {% endfor %}
       </table>
     {% endif %}
-  {% endblock %}
+  {% endblock import_results %}
 
 
-{% endblock %}
+{% endblock content %}
