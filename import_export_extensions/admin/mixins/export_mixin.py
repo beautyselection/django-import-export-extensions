@@ -187,7 +187,7 @@ class CeleryExportAdminMixin(
             )
 
         context = self.get_export_context_data()
-        job_url = reverse(f"{self.admin_site.name}:export_job_progress", args=(job.id,))
+        job_url = reverse("admin:export_job_progress", args=(job.id,))
 
         context["title"] = _("Export status")
         context["opts"] = self.model_info.meta
