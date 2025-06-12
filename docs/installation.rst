@@ -80,6 +80,26 @@ Mapping file extensions to mime types to import files.
 By default, it uses the `mimetypes.types_map <https://docs.python.org/3/library/mimetypes.html#mimetypes.types_map>`_
 from Python's mimetypes module.
 
+``STATUS_UPDATE_ROW_COUNT``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Defines the number of rows after import/export of which the task status is
+updated. This helps to increase the speed of import/export. The default value
+is 100. This parameter can be specified separately for each resource by adding
+``status_update_row_count`` to its ``Meta``.
+
+``DRF_EXPORT_DJANGO_FILTERS_BACKEND``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Specifies filter backend class for ``django-filters`` in export action.
+Default: ``django_filters.rest_framework.DjangoFilterBackend``
+
+``DRF_EXPORT_ORDERING_BACKEND``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Specifies filter backend class for ``ordering`` in export action.
+Default: ``rest_framework.filters.OrderingFilter``
+
 Settings from django-import-export
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Additionally, the package supports settings from the original django-import-export package.
@@ -87,3 +107,24 @@ For full details on these settings, refer to the `official documentation <https:
 
 **Note**: The only setting that does not affect functionality in this package is ``IMPORT_EXPORT_TMP_STORAGE_CLASS``,
 as the storage is not used in the implementation of ``CeleryImportAdminMixin``.
+
+Picking storage
+~~~~~~~~~~~~~~~
+
+To use different storage for import/export jobs you can use `STORAGES <https://docs.djangoproject.com/en/dev/ref/settings/#storages>`.
+from django.
+
+.. code-block:: python
+
+  STORAGES = {
+      "default": {
+          "BACKEND": "django.core.files.storage.filesystem.FileSystemStorage",
+      },
+      "staticfiles": {
+          "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+      },
+      # Use this to specify custom storage for package
+      "django_import_export_extensions": {
+          "BACKEND": "django.core.files.storage.filesystem.FileSystemStorage",
+      },
+  }

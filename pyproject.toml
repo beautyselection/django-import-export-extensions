@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-import-export-extensions"
-version = "1.1.0"
+version = "1.7.0"
 description = "Extend functionality of `django-import-export`"
 license = "MIT"
 authors = ["Saritasa <pypi@saritasa.com>"]
@@ -31,6 +31,7 @@ classifiers = [
   "Framework :: Django :: 4.2",
   "Framework :: Django :: 5.0",
   "Framework :: Django :: 5.1",
+  "Framework :: Django :: 5.2",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
@@ -54,10 +55,10 @@ djangorestframework = "^3.15.2"
 drf-spectacular = ">=0.27.1,<0.29.0"
 # Filter querysets dynamically
 # https://django-filter.readthedocs.io/en/stable/
-django-filter = "^24.3"
+django-filter = ">=24.3,<26.0"
 # Different useful Django utils
 # https://django-extensions.readthedocs.io/en/latest/
-django-extensions = "^3.2.3"
+django-extensions = ">=3.2.3,<5.0.0"
 # Implementation of a pickled object field in django
 # https://github.com/gintas/django-picklefield
 django-picklefield = "^3.2"
@@ -74,7 +75,10 @@ ipython = "^8.27.0"
 # The Django Debug Toolbar is a configurable set of panels that display various debug information
 # about the current request/response and when clicked, display more details about the panel's content.
 # https://django-debug-toolbar.readthedocs.io/en/latest/
-django-debug-toolbar = "^4.4.6"
+django-debug-toolbar = ">=4.4.6,<6.0.0"
+# Decouple helps configure settings using env variables and .env files
+# https://github.com/HBNetwork/python-decouple
+python-decouple = "^3.8"
 
 [tool.poetry.group.linters.dependencies]
 # Mypy is a static type checker for Python.
@@ -97,15 +101,21 @@ pytest-mock = "^3.14.0"
 # Allows you to use fixtures in @pytest.mark.parametrize.
 # https://pypi.org/project/pytest-lazy-fixtures/
 pytest-lazy-fixtures = "^1.1.1"
+# This plugin produces coverage reports.
+# https://pytest-cov.readthedocs.io/en/latest/index.html
+pytest-cov = "^6.0.0"
+# To prettify pytest output
+# https://github.com/Teemu/pytest-sugar
+pytest-sugar = "^1.0.0"
+# To run test in parallel
+# Docs: https://pypi.org/project/pytest-xdist/
+pytest-xdist = "^3.6.1"
 # Package for generating test data
 # https://factoryboy.readthedocs.io/en/stable/
 factory-boy = "^3.3.1"
 # Werkzeug is a comprehensive WSGI web application library
 # https://werkzeug.palletsprojects.com/en/3.0.x/
 werkzeug = "^3.0.4"
-# This plugin produces coverage reports.
-# https://pytest-cov.readthedocs.io/en/latest/index.html
-pytest-cov = ">=5,<7"
 # Psycopg is a PostgreSQL adapter for the Python
 # https://www.psycopg.org/docs/install.html
 psycopg2-binary = "^2.9.9"
@@ -199,12 +209,10 @@ extend-select = [
   "RUF",
 ]
 ignore = [
+  # https://docs.astral.sh/ruff/rules/builtin-module-shadowing
+  "A005",
   # https://docs.astral.sh/ruff/rules/missing-type-args
   "ANN002",
-  # https://docs.astral.sh/ruff/rules/missing-type-self
-  "ANN101",
-  # https://docs.astral.sh/ruff/rules/missing-type-cls
-  "ANN102",
   # https://docs.astral.sh/ruff/rules/missing-type-kwargs
   "ANN003",
   # https://docs.astral.sh/ruff/rules/any-type
@@ -237,6 +245,8 @@ ignore = [
   "C408",
   # https://docs.astral.sh/ruff/rules/mutable-class-default
   "RUF012",
+  # https://docs.astral.sh/ruff/rules/assignment-in-assert/
+  "RUF018",
   # https://docs.astral.sh/ruff/rules/raise-vanilla-args
   "TRY003",
   # https://docs.astral.sh/ruff/rules/try-consider-else

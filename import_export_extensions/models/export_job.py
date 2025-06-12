@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from celery import current_app, result, states
 from import_export.formats import base_formats
 
+from .. import signals
 from . import tools
 from .core import BaseJob, TaskStateInfo
 
@@ -80,6 +81,7 @@ class ExportJob(BaseJob):
 
     data_file = models.FileField(
         max_length=512,
+        storage=tools.select_storage,
         verbose_name=_("Data file"),
         upload_to=tools.upload_export_file_to,
         help_text=_("File that contain exported data"),
@@ -208,15 +210,10 @@ class ExportJob(BaseJob):
                 ],
             )
         except Exception as error:
-            self.traceback = traceback.format_exc()
-            self.error_message = str(error)[:512]
-            self.export_status = self.ExportStatus.EXPORT_ERROR
-            self.save(
-                update_fields=[
-                    "export_status",
-                    "traceback",
-                    "error_message",
-                ],
+            self._handle_error(
+                error_message=str(error),
+                traceback=traceback.format_exc(),
+                exception=error,
             )
 
     def cancel_export(self) -> None:
@@ -240,14 +237,19 @@ class ExportJob(BaseJob):
         self.export_status = self.ExportStatus.CANCELLED
         self.save(update_fields=["export_status"])
 
-    def _export_data_inner(self):
+    def _export_data_inner(self) -> None:
         """Run export process with saving to file."""
         self.result = self.resource.export()
         self.save(update_fields=["result"])
 
         # `export_data` may be bytes (base formats such as xlsx, csv, etc.) or
         # file object (formats inherited from `BaseZipExport`)
-        export_data = self.file_format.export_data(dataset=self.result)
+        export_data = self.file_format.export_data(
+            dataset=self.result,
+            **self.resource.get_export_data_format_kwargs(
+                file_format=self.file_format,
+            ),
+        )
         # create file if `export_data` is not file
         if not hasattr(export_data, "read"):
             export_data = django_files.base.ContentFile(
@@ -276,10 +278,26 @@ class ExportJob(BaseJob):
                 info=async_result.info,
             )
 
-        # Update job's status in case of exception
+        self._handle_error(
+            error_message=str(async_result.info),
+            traceback=str(async_result.traceback),
+        )
+        return dict(
+            state=async_result.state,
+            info={},
+        )
+
+    def _handle_error(
+        self,
+        error_message: str,
+        traceback: str,
+        exception: Exception | None = None,
+    ):
+        """Update job's status in case of error."""
         self.export_status = self.ExportStatus.EXPORT_ERROR
-        self.error_message = str(async_result.info)[:128]
-        self.traceback = str(async_result.traceback)
+        error_message_limit = self._meta.get_field("error_message").max_length
+        self.error_message = error_message[:error_message_limit]
+        self.traceback = traceback
         self.save(
             update_fields=[
                 "error_message",
@@ -287,7 +305,10 @@ class ExportJob(BaseJob):
                 "export_status",
             ],
         )
-        return dict(
-            state=async_result.state,
-            info={},
+        signals.export_job_failed.send(
+            sender=self.__class__,
+            instance=self,
+            error_message=self.error_message,
+            traceback=self.traceback,
+            exception=exception,
         )

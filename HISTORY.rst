@@ -2,6 +2,68 @@
 History
 =======
 
+1.7.0 (2025-05-22)
+------------------
+
+* Add support using admin page filters for export
+* Minor refactor of CeleryResourceMixin for easier overriding of export/import methods
+* Add ability to pass additional args to `BaseFormat.export_data` on export
+
+1.6.0 (2025-04-29)
+------------------
+
+* Support Django 5.2
+* Add support for customizing Django Admin forms for import/export
+
+1.5.0 (2025-04-02)
+------------------
+
+* Fix issue with long `error_message`
+* Add signals `export_job_failed` and `import_job_failed`
+  to respond to failed jobs.
+* Add ability to specify storage via `STORAGES` setting and alias
+  `django_import_export_extensions`
+* Make possible to pass args/kwargs to import/export start action
+
+1.4.1 (2025-02-18)
+------------------
+
+* Make querysets more consistent for ViewSets
+
+1.4.0 (2025-01-28)
+------------------
+
+* Add explicit `created_by` argument to `CeleryResourceMixin` and pass it in
+  `ExportJobSerializer` validation
+* Add export/import action mixins `api.mixins.ExportStartActionMixin`
+  and `api.mixins.ImportStartActionMixin`
+* Add `api.views.BaseExportJobViewSet`, `BaseExportJobForUsersViewSet`,
+  `api.views.BaseImportJobViewSet` and `BaseImportJobForUsersViewSet` for
+  job management
+
+1.3.1 (2025-01-13)
+------------------
+
+* Fix issues with query params parsing
+* Make `get_queryset` consistent for start actions
+
+1.3.0 (2025-01-09)
+------------------
+
+* Add base import/export views that only allow users to work with their own jobs (`ImportJobForUserViewSet` and `ExportJobForUserViewSet`).
+* Small actions definition refactor in `ExportJobViewSet/ExportJobViewSet` to allow easier overriding.
+* Add support for ordering in `export`
+* Add settings for DjangoFilterBackend and OrderingFilter in export api.
+  `DRF_EXPORT_DJANGO_FILTERS_BACKEND` with default `django_filters.rest_framework.DjangoFilterBackend` and
+  `DRF_EXPORT_ORDERING_BACKEND` with default `rest_framework.filters.OrderingFilter`.
+
+1.2.0 (2024-12-26)
+------------------
+* Fix issue with slow export duration (https://github.com/saritasa-nest/django-import-export-extensions/issues/79):
+
+  * Add setting ``STATUS_UPDATE_ROW_COUNT`` (default: 100) which defines the number of rows after import/export of which the task status is updated;
+  * Add ability to specify ``status_update_row_count`` for each resource;
+
 1.1.0 (2024-12-06)
 ------------------
 * Fix progress bar on changeview for ImportJob and ExportJob

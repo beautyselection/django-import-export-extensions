@@ -28,27 +28,35 @@ def new_artist():
 
 
 @pytest.fixture
-def artist_import_job(existing_artist: Artist) -> ImportJob:
+def artist_import_job(
+    superuser: User,
+    existing_artist: Artist,
+) -> ImportJob:
     """Return `ImportJob` instance with specified artist."""
-    return factories.ArtistImportJobFactory(artists=[existing_artist])
+    return factories.ArtistImportJobFactory.create(
+        created_by=superuser,
+        artists=[existing_artist],
+    )
 
 
 @pytest.fixture
-def artist_export_job() -> ExportJob:
+def artist_export_job(
+    superuser: User,
+) -> ExportJob:
     """Return `ExportJob` instance."""
-    return factories.ArtistExportJobFactory()
+    return factories.ArtistExportJobFactory.create(created_by=superuser)
 
 
 @pytest.fixture
 def band() -> Band:
     """Return `Band` instance."""
-    return factories.BandFactory(title="Aerosmith")
+    return factories.BandFactory.create(title="Aerosmith")
 
 
 @pytest.fixture
 def membership(band: Band) -> Membership:
     """Return `Membership` instance with specified band."""
-    return factories.MembershipFactory(band=band)
+    return factories.MembershipFactory.create(band=band)
 
 
 @pytest.fixture
@@ -63,12 +71,28 @@ def uploaded_file(existing_artist: Artist) -> SimpleUploadedFile:
 
 
 @pytest.fixture
-def force_import_artist_job(new_artist: Artist) -> Artist:
+def force_import_artist_job(
+    superuser: User,
+    new_artist: Artist,
+) -> ImportJob:
     """`ImportJob` with `force_import=True` and file with invalid row."""
-    return ArtistImportJobFactory(
+    return ArtistImportJobFactory.create(
         artists=[new_artist],
         is_valid_file=False,
         force_import=True,
+        created_by=superuser,
+    )
+
+
+@pytest.fixture
+def user():
+    """Return user instance."""
+    return get_user_model().objects.create(
+        username="test_login",
+        email="test@localhost.com",
+        password="test_pass",
+        is_staff=False,
+        is_superuser=False,
     )
 
 
@@ -76,9 +100,9 @@ def force_import_artist_job(new_artist: Artist) -> Artist:
 def superuser():
     """Return superuser instance."""
     return get_user_model().objects.create(
-        username="test_login",
-        email="test@localhost.com",
-        password="test_pass",
+        username="admin_login",
+        email="admin@localhost.com",
+        password="admin_pass",
         is_staff=True,
         is_superuser=True,
     )

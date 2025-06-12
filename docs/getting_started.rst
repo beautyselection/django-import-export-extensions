@@ -105,6 +105,40 @@ Example of creation:
 These models are also registered in the Django Admin, allowing you to view all information about
 the created jobs directly from the admin interface.
 
+Signals
+-------
+
+The package provides signals `export_job_failed` and `import_job_failed`. You
+can use them to handle errors that happened during job.
+
+Example
+
+.. code-block:: python
+
+  import logging
+
+  from django import dispatch
+
+  from import_export_extensions.models.core import BaseJob
+  from import_export_extensions.signals import (
+      export_job_failed,
+      import_job_failed,
+  )
+
+
+  @dispatch.receiver(export_job_failed)
+  @dispatch.receiver(import_job_failed)
+  def job_error_hook(
+      sender,
+      instance: BaseJob,
+      error_message: str,
+      traceback: str,
+      exception: Exception | None,
+      **kwargs,
+  ):
+      """Present an example of job error hook."""
+      logging.getLogger(__file__).warning(f"{instance}, {error_message}")
+
 Admin models
 ------------
 
@@ -135,7 +169,7 @@ a ``status page``, where you can monitor the progress of the import/export proce
    A screenshot of Django Admin export status page
 
 Import/Export API
------------------
+----------------------------------------------------------------
 
 The ``api.views.ExportJobViewSet`` and ``api.views.ImportJobViewSet`` are provided to create
 the corresponding viewsets for the resource.
@@ -167,5 +201,23 @@ Additionally, there is ``drf_spectacular`` integration. If you have this package
 the OpenAPI specification will be available.
 
 .. figure:: _static/images/bands-openapi.png
+
+   A screenshot of the generated OpenAPI specification
+
+
+Import/Export API actions mixins
+----------------------------------------------------------------
+
+Alternatively you can use ``api.mixins.ExportStartActionMixin`` and ``api.mixins.ImportStartActionMixin``
+to add to your current viewsets ability to create import/export jobs.
+You would also need to use ``api.views.BaseExportJobViewSet`` or ``BaseExportJobForUsersViewSet``
+and ``api.views.BaseImportJobViewSet`` or ``BaseImportJobForUsersViewSet`` to setup endpoints to be able to:
+
+* ``list`` - Returns a list of jobs for the ``resource_class`` set in ViewSet.
+* ``retrieve`` - Returns details of a job based on the provided ID.
+* ``cancel`` - Stops the import/export process and sets the job's status to ``CANCELLED``.
+* ``confirm`` - Confirms the import after the parse stage. This action is available only in import jobs.
+
+.. figure:: _static/images/action-bands-openapi.png
 
    A screenshot of the generated OpenAPI specification
